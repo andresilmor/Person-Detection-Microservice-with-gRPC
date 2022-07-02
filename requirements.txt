@@ -1,0 +1,6 @@
+pyzmq 
+opencv-python
+flask
+threading
+pillow
+
