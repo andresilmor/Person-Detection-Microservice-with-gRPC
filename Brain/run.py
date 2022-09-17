@@ -1,5 +1,6 @@
 import base64
 from fastapi import FastAPI, WebSocket
+from fastapi.responses import HTMLResponse
 import uvicorn
 import numpy as np
 import socket   
@@ -59,16 +60,18 @@ html = """
 """
 
 
+
 @app.get("/")
-async def root():
-    recog =  frameRecon("")
-    print(recog)
-    return {"message": "Hello World"}
+async def get():
+    return HTMLResponse(html)
+
 
 @app.websocket("/test")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    await websocket.send_text("check")
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 
 @app.websocket("/ws")
@@ -77,7 +80,7 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         print(data)
-        if (data in ['inside', 'Sending', 'Sended', 'Erro: MediaFrameReference', 'Erro: Exception', 'Erro: SoftwareBitmap', 'Regex']): 
+        if (data in ['Connection Opened','inside', 'Sending', 'Sended', 'Erro: MediaFrameReference', 'Erro: Exception', 'Erro: SoftwareBitmap', 'Regex']): 
             await websocket.send_text(data)
         else:    
             

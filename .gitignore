@@ -1,5 +1,7 @@
 
 Server.rar
 Server_ENV
-Brain/database/
-Brain/weights/
+Brain/database/*
+Brain/weights/*
+Brain/frame.png
+Brain/frame.png
