@@ -81,11 +81,12 @@ async def websocket_endpoint(websocket: WebSocket):
         data = await websocket.receive_text()
         print(data)
         if (data in ['Connection Opened','inside', 'Sending', 'Sended', 'Erro: MediaFrameReference', 'Erro: Exception', 'Erro: SoftwareBitmap', 'Regex']): 
-            await websocket.send_text(data)
+            await websocket.send_text(f"Ignore")
+        #await websocket.send_text(data)
         else:    
             
             frame = json.loads(data)
-            #frame['cameraLocation']['position']['y'] -= 0.100
+            
             b64 = (frame['bytes'] + '===')[0: len(frame['bytes']) + (len(frame['bytes']) % 4)]
             b64 = re.sub(r'/_/g', '/', b64)
             b64 = re.sub(r'/-/g', '+', b64)
@@ -94,59 +95,14 @@ async def websocket_endpoint(websocket: WebSocket):
             
             listDetections =  frameRecon(encodeFace)
 
-            print(listDetections)
-        
 
-            
-            
-            #unitCenterX = frame['cameraLocation']['position']['x']
-            #unitCenterY = frame['cameraLocation']['position']['y']
-
-            #print("CENTER X: {}, CENTER Y: {}".format(unitCenterX, unitCenterY))
-
-            #   720 - unitCenterX
-            #   x       
-
-            #for detection in listDetections:
-            #    detection['box']['x1'] = (detection['box']['x1'] * unitCenterX) / 720
-            #    detection['box']['x2'] = (detection['box']['x2'] * unitCenterX) / 720
-            #    detection['box']['y1'] = (detection['box']['y1'] * unitCenterY) / 468
-            #    detection['box']['y2'] = (detection['box']['y2'] * unitCenterY) / 468
-
-            pixelX = 1
-            pixelY = 468
-
-            pixelX = 1 - 720
-            pixelY = 468 - 468 
-
-             
-            '''
-
-       
-            listDetections.append({'name': "BOTTOM LEFT",
-                                    'box': {'y1': int(0), 'x2':  int(0), 'y2': int(0), 'x1': int(0), 'centerX': (), 'centerY': ((1 * unitCenterY) / 468)}})
-            listDetections.append({'name': "BOTTOM RIGHT",
-                                    'box': {'y1': int(0), 'x2':  int(0), 'y2': int(0), 'x1': int(0), 'centerX': ((1440 * unitCenterX) / 720), 'centerY': ((1 * unitCenterY) / 468)}})
-            listDetections.append({'name': "TOP LEFT",
-                                    'box': {'y1': int(0), 'x2':  int(0), 'y2': int(0), 'x1': int(0), 'centerX': ((1 * unitCenterX) / 720), 'centerY': ((936 * unitCenterY) / 468)}})
-            listDetections.append({'name': "TOP RIGHT",
-                                    'box': {'y1': int(0), 'x2':  int(0), 'y2': int(0), 'x1': int(0), 'centerX': ((1440 * unitCenterX) / 720), 'centerY': ((936 * unitCenterY) / 468)}})
-            '''
             
             json_obj_list = []
             json_obj_list.append({'type' : "Person",
                                     'list': listDetections })
             json_dump = json.dumps(json_obj_list, indent="\t")
-            
-                # TODO 
-                # Show normal frame
-                # Show frame with draw
-                # Show box measures
-                
-            
-            #with open(os.getcwd() + "/Brain/imageToSave.png", "wb") as fh:
-            #    fh.write(base64.decodebytes(data))
-#            await websocket.send_text("check")
+       
+
             print(json.loads(str(json_dump)))
             face_recog = "[{'type': 'Person', 'list': [{'name': 'Andre Moreira', 'box': {'y1': 564, 'x2': 908, 'y2': 772, 'x1': 700}}]}] "
             await websocket.send_json(json.loads(str(json_dump)))
