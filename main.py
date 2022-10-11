@@ -2,15 +2,20 @@ from fastapi import FastAPI
 import uvicorn
 import socket  
 
-from config import Settings
-from apiRouter import MachineLearning
+from routers import PacientCRUD, MachineLearning
 
-app = FastAPI(debug=Settings().development,
-              title=Settings().app_name,
+from os import environ
+from dotenv import load_dotenv, find_dotenv
+
+env_loc = find_dotenv('.env')
+load_dotenv(env_loc)
+
+app = FastAPI(debug=environ.get('DEVELOPMENT'),
+              title=environ.get('APP_NAME'),
               description='...',
               version=0.1,
-              docs_url='/docs',
-              redoc_url='/redoc')
+              docs_url='/docs')
+              #redoc_url='/redoc')
 
 
 @app.on_event("startup")
@@ -24,8 +29,6 @@ async def startup_event():
 
     print("***\n" + app.title + "\n***")
 
-    
-
     print(">>> Hello There")
     print(">>> General " + IPAddr)
     
@@ -36,6 +39,13 @@ app.include_router(
     MachineLearning.router,
     prefix='/brain',
     tags=['ML'],
+
+)
+
+app.include_router(
+    PacientCRUD.router,
+    prefix='/pacient',
+    tags=['Pacient'],
 
 )
 
