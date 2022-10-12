@@ -5,54 +5,29 @@ import numpy as np
 import json
 import re
 
+from logAssist import logWebSocketConnection
 
-from logAssist import *
 from frameRecon import frameRecon
+from models.experimental import attempt_load
+from emotic import Emotic 
+import torch
+import os
+
 
 router = APIRouter()
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>
-            var ws = new WebSocket("ws://localhost:8000/ws");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        </script>
-    </body>
-</html>
-"""
 
 
 
+def preloadModels():
+    yoloModel = attempt_load("weights/yolov7x.pt", "cpu")
 
-@router.get("/test")
-async def get(request: Request):
-    
-    print(request.client.host)
-    logWebSocketConnection(request.client.host, request.url._url)
-    return HTMLResponse(html)
+    model_context = torch.load(os.path.join("models/emotic",'model_context1.pth')).to("cpu")
+    model_body = torch.load(os.path.join("models/emotic",'model_body1.pth')).to("cpu")
+
+    emotic_state_dict = torch.load(os.path.join("models/emotic",'model_emotic1.pt'))
+    emotic_model = Emotic(2048,2048)
+    emotic_model.load_state_dict(emotic_state_dict)
+    return [yoloModel, model_context, model_body, emotic_model]
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -73,10 +48,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             encodeFace = np.fromstring(base64.b64decode(b64), dtype=np.uint8) 
             
-            listDetections =  frameRecon(encodeFace)
+            listDetections =  frameRecon(encodeFace, yoloModel)
 
-
-            
             json_obj_list = []
             json_obj_list.append({'type' : "Person",
                                     'list': listDetections })

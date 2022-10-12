@@ -9,7 +9,6 @@ env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
 
 # Neo4j driver execution
-print("yo " + environ.get('NEO4J_URI'))
 uri = environ.get('NEO4J_URI')
 username = environ.get('NEO4J_USERNAME')
 password = environ.get('NEO4J_PASSWORD')

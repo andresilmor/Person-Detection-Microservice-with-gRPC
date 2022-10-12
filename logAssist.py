@@ -44,5 +44,5 @@ def logWebSocketConnection(clientIP, route, clientUser = 'unknown'):
 
 @lru_cache()
 def logDatabaseComm(clientIP, route, operation, entity, clientUser = 'unknown'):
-   logging.getLogger('dbComms_logger').info(clientIP + ' ' + clientUser + ' : ' + operation + ' ' + entity + ' (' + route + ')')
+    logging.getLogger('dbComms_logger').info(clientIP + ' ' + clientUser + ' : ' + operation + ' ' + entity + ' (' + route + ')')
 

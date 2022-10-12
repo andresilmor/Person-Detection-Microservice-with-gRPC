@@ -6,6 +6,9 @@ from routers import PacientCRUD, MachineLearning
 
 from os import environ
 from dotenv import load_dotenv, find_dotenv
+from routers.resources.hololens.ml import preloadModels
+
+import utils.modelsStorage 
 
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
@@ -18,11 +21,19 @@ app = FastAPI(debug=environ.get('DEVELOPMENT'),
               #redoc_url='/redoc')
 
 
+
+
+#yoloModel, model_context, model_body, emotic_model = None
+
 @app.on_event("startup")
 async def startup_event():
     """
     Initialize FastAPI and add variables
     """
+
+    utils.modelsStorage.init()
+
+    utils.modelsStorage.models =preloadModels()
 
     hostname=socket.gethostname()   
     IPAddr=socket.gethostbyname(hostname) 
@@ -31,6 +42,7 @@ async def startup_event():
 
     print(">>> Hello There")
     print(">>> General " + IPAddr)
+    
     
 
 # ---------------------------------------------   ROUTER   ------------------------------------------------------- #   

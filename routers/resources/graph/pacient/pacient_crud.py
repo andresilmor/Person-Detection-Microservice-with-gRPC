@@ -1,3 +1,4 @@
+from pyexpat import model
 from fastapi import APIRouter, Request, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from logAssist import logDatabaseComm
@@ -14,6 +15,10 @@ router = APIRouter()
 async def get(pacientID: str, request: Request):
     
     print(pacientID)
+    from utils.modelsStorage import models
+
+    for m in models:
+        print(type(m))
 
     logDatabaseComm(request.client.host, request.url._url, "VIEW", "Pacient")
     

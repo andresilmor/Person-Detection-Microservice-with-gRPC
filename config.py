@@ -6,4 +6,4 @@ class Settings(BaseSettings):
     development: bool
 
     class Config:
-        env_file = ".env"
+        env_file= None
