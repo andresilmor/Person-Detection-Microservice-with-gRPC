@@ -1,7 +1,9 @@
-from routers.resources.graph.pacient import pacient_crud as PacientCRUD
-from routers.resources.hololens import ml as MachineLearning
+from routers.resources.graph import pacient as Pacient
+from routers.resources.graph import medication as Medication
+from routers.resources.websockets import ws as WS_Connections
 
 __all__ = [
-    PacientCRUD,
-    MachineLearning
+    Pacient,
+    Medication,
+    WS_Connections
 ]

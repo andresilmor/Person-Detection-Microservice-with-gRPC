@@ -1,48 +1,49 @@
-from distutils.core import setup
 import logging
-from config import Settings
 from functools import lru_cache
 
-'''
-dbComms_logger = logging.getLogger("dbComms_logger")
-dbComms_file = logging.FileHandler("logs/dbComms.log", mode="w")
-dbComms_file.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
-dbComms_stream = logging.StreamHandler()
-dbComms_stream.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
-dbComms_logger.setLevel(logging.INFO)
-dbComms_logger.addHandler(dbComms_file)
-dbComms_logger.addHandler(dbComms_stream)
+class CustomFormatter(logging.Formatter):
 
-connections_logger = logging.getLogger("connections_logger")
-connections_file = logging.FileHandler("logs/connections.log", mode="w")
-connections_file.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
-connections_stream = logging.StreamHandler()
-connections_stream.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
-connections_logger.setLevel(logging.INFO)
-connections_logger.addHandler(connections_file)
-connections_logger.addHandler(connections_stream)
-'''
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
 
+    format = '%(asctime)s | %(levelname)8s | %(message)s'
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+@lru_cache
 def setupLogger(loggerName):
     logger = logging.getLogger(loggerName + "_logger")
-    logger_file = logging.FileHandler("logs/" + loggerName + ".log", mode="w")
-    logger_file.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
+    logger_file = logging.FileHandler("logs/" + loggerName + ".log", mode="a")
+    logger_file.setFormatter(logging.Formatter(fmt='%(asctime)s | %(levelname)8s | %(message)s'))
+    #logger_file.setFormatter(CustomFormatter())
     logger_stream = logging.StreamHandler()
-    logger_stream.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d %(message)s'))
-    logger.setLevel(logging.INFO)
+    #logger_stream.setFormatter(logging.Formatter(fmt=fmt))
+    logger_stream.setFormatter(CustomFormatter())
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(logger_file)
     logger.addHandler(logger_stream)
-
 
 setupLogger("connections")
 setupLogger("dbComms")
 
-
-@lru_cache()
 def logWebSocketConnection(clientIP, route, clientUser = 'unknown'):
     logging.getLogger('connections_logger').info(clientIP + ' ' + clientUser + ' : START websocket connection (' + route + ')')
 
-@lru_cache()
+
 def logDatabaseComm(clientIP, route, operation, entity, clientUser = 'unknown'):
-    logging.getLogger('dbComms_logger').info(clientIP + ' ' + clientUser + ' : ' + operation + ' ' + entity + ' (' + route + ')')
+    logging.getLogger('dbComms_logger').info(clientIP + ' : ' + clientUser + ' | ' + operation + ' ' + entity + ' (' + route + ')')
 

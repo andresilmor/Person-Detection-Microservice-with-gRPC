@@ -1,8 +1,10 @@
-from routers.resources import PacientCRUD as PacientCRUD
-from routers.resources import MachineLearning
+from routers.mutation import Mutation
+from routers.query import Query
+from routers.resources import WS_Connections
 
 
 __all__ = [
-    PacientCRUD, 
-    MachineLearning
+    Mutation,
+    Query,
+    WS_Connections
 ]

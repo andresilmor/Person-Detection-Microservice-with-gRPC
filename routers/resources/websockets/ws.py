@@ -13,9 +13,9 @@ from emotic import Emotic
 import torch
 import os
 
+from logAssist import logDatabaseComm
 
 router = APIRouter()
-
 
 
 def preloadModels():
@@ -29,9 +29,17 @@ def preloadModels():
     emotic_model.load_state_dict(emotic_state_dict)
     return [yoloModel, model_context, model_body, emotic_model]
 
-@router.websocket("/ws")
+
+
+@router.get("/test")
+async def get():
+    return "YO"
+
+@router.websocket("/live")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    print("oi")
+    return
     while True:
         data = await websocket.receive_text()
         print(data)

@@ -1,12 +1,15 @@
+import strawberry
+from strawberry.types import Info
 from fastapi import FastAPI
+from strawberry.fastapi import GraphQLRouter
 import uvicorn
 import socket  
 
-from routers import PacientCRUD, MachineLearning
+from routers import Mutation, Query, WS_Connections
 
 from os import environ
 from dotenv import load_dotenv, find_dotenv
-from routers.resources.hololens.ml import preloadModels
+from routers.resources.websockets.ws import preloadModels
 
 import utils.modelsStorage 
 
@@ -19,8 +22,6 @@ app = FastAPI(debug=environ.get('DEVELOPMENT'),
               version=0.1,
               docs_url='/docs')
               #redoc_url='/redoc')
-
-
 
 
 #yoloModel, model_context, model_body, emotic_model = None
@@ -45,24 +46,24 @@ async def startup_event():
     
     
 
-# ---------------------------------------------   ROUTER   ------------------------------------------------------- #   
+# ---------------------------------------------   GraphQL   ------------------------------------------------------- #   
 
-app.include_router(
-    MachineLearning.router,
-    prefix='/brain',
-    tags=['ML'],
+if (environ.get('DEVELOPMENT')):
+    schema = strawberry.Schema(query=Query, mutation=Mutation)
+else: 
+    schema = strawberry.Schema(mutation=Mutation)
 
-)
+app.include_router(GraphQLRouter(schema), prefix="/api")
 
-app.include_router(
-    PacientCRUD.router,
-    prefix='/pacient',
-    tags=['Pacient'],
+# ---------------------------------------------------------------------------------------------------------------- #
 
-)
+# --------------------------------------------   WebSockets   ---------------------------------------------------- #   
 
-    
+app.include_router(WS_Connections.router, prefix='/ws')
+
 # ---------------------------------------------------------------------------------------------------------------- #   
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app)
