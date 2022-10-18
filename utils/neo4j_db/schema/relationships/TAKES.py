@@ -1,8 +1,10 @@
+from time import time
+import datetime
 import strawberry.type as relationship
-from utils.neo4j_db.schema.entities.medication import Medication
+from utils.neo4j_db.schema import Medication
 
 @relationship
 class Pacient_TAKES_Medication:
-    hour: str
-    quantity: str
+    hour: datetime.time
+    quantity: int
     medication: Medication

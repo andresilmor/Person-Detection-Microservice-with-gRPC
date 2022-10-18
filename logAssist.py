@@ -38,12 +38,23 @@ def setupLogger(loggerName):
     logger.addHandler(logger_stream)
 
 setupLogger("connections")
-setupLogger("dbComms")
+setupLogger("requests")
 
 def logWebSocketConnection(clientIP, route, clientUser = 'unknown'):
     logging.getLogger('connections_logger').info(clientIP + ' ' + clientUser + ' : START websocket connection (' + route + ')')
 
 
-def logDatabaseComm(clientIP, route, operation, entity, clientUser = 'unknown'):
-    logging.getLogger('dbComms_logger').info(clientIP + ' : ' + clientUser + ' | ' + operation + ' ' + entity + ' (' + route + ')')
+async def logRequest(clientIP, port, operation):
+    if operation not in ["3466fab4975481651940ed328aa990e4", "294ce20cdefa29be3be0735cb62e715d", "15a8022d0ed9cd9c2a2e756822703eb4", "32f68a60cef40faedbc6af20298c1a1e"]:
+        logging.getLogger('requests_logger').error(str(clientIP) + ':' + str(port) + ' | ' + str(operation) )
+    else:
+        if operation == "3466fab4975481651940ed328aa990e4":
+            logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) + ' | READ' )
+        elif operation == "294ce20cdefa29be3be0735cb62e715d":
+            logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) + ' | CREATE' )
+        elif operation == "15a8022d0ed9cd9c2a2e756822703eb4":
+            logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) + ' | UPDATE' )
+        else:
+            logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) + ' | DELETE' )
+        
 

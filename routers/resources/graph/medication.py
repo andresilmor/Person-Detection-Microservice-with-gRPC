@@ -1,7 +1,6 @@
 from pyexpat import model
 from fastapi import APIRouter, Request, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
-from logAssist import logDatabaseComm
 
 # Import internal utilities for database access, authorisation, and schemas
 from utils.neo4j_db.connection import neo4j_driver

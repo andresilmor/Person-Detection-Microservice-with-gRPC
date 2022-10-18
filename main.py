@@ -1,15 +1,19 @@
 import strawberry
 from strawberry.types import Info
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
 import uvicorn
 import socket  
+import time
 
 from routers import Mutation, Query, WS_Connections
 
 from os import environ
 from dotenv import load_dotenv, find_dotenv
 from routers.resources.websockets.ws import preloadModels
+from logAssist import logRequest
+
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 import utils.modelsStorage 
 
@@ -45,13 +49,27 @@ async def startup_event():
     print(">>> General " + IPAddr)
     
     
+# ---------------------------------------------------------------------------------------------------------------- #
+
+# --------------------------------------------   Middleware   ---------------------------------------------------- #   
+ 
+if (environ.get('DEVELOPMENT') is False):
+    app.add_middleware(HTTPSRedirectMiddleware)
+
+@app.middleware("http")
+async def request_middleware(request: Request, call_next):
+    await logRequest(request.client.host, request.client.port, request.headers['hash'])
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+# ---------------------------------------------------------------------------------------------------------------- #
 
 # ---------------------------------------------   GraphQL   ------------------------------------------------------- #   
 
-if (environ.get('DEVELOPMENT')):
-    schema = strawberry.Schema(query=Query, mutation=Mutation)
-else: 
-    schema = strawberry.Schema(mutation=Mutation)
+schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 app.include_router(GraphQLRouter(schema), prefix="/api")
 

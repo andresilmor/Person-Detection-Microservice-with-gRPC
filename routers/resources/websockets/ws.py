@@ -13,8 +13,6 @@ from emotic import Emotic
 import torch
 import os
 
-from logAssist import logDatabaseComm
-
 router = APIRouter()
 
 
