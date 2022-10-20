@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import strawberry
 from routers.resources.graph import PacientQuery
 
@@ -6,3 +7,6 @@ class Query (PacientQuery):
 
     def NOT_USED(self):
         return None
+
+
+    

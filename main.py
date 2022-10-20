@@ -2,11 +2,14 @@ import strawberry
 from strawberry.types import Info
 from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
+from strawberry.extensions import AddValidationRules
+from graphql.validation import NoSchemaIntrospectionCustomRule
 import uvicorn
 import socket  
 import time
 
 from routers import Mutation, Query, WS_Connections
+from routers.resources.commonResponses import VisibleError, MaskErrors, ErrorMessage
 
 from os import environ
 from dotenv import load_dotenv, find_dotenv
@@ -58,7 +61,20 @@ if (environ.get('DEVELOPMENT') is False):
 
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
-    await logRequest(request.client.host, request.client.port, request.headers['hash'])
+    operation = request.headers['Hash']
+    if operation == "3466fab4975481651940ed328aa990e4":
+        operation = "READ"
+    elif operation == "294ce20cdefa29be3be0735cb62e715d":
+        operation = "CREATE"
+    elif operation == "15a8022d0ed9cd9c2a2e756822703eb4":
+        operation = "UPDATE"
+    elif operation == "32f68a60cef40faedbc6af20298c1a1e":
+        operation = "DELETE"
+    else:
+        operation = "HEADERS KEY (hash) VALUE CORRUPTED"
+        await logRequest(request.client.host, request.client.port, operation, "CRITICAL")
+
+    await logRequest(request.client.host, request.client.port, operation)
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -69,7 +85,12 @@ async def request_middleware(request: Request, call_next):
 
 # ---------------------------------------------   GraphQL   ------------------------------------------------------- #   
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    extensions=[
+        AddValidationRules([NoSchemaIntrospectionCustomRule]),
+    ])
 
 app.include_router(GraphQLRouter(schema), prefix="/api")
 
