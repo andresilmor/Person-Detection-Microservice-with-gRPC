@@ -5,9 +5,9 @@
 		}
 	],
 	"settings": {
-		"vscode-pets.petColor": "white",
+		"vscode-pets.petColor": "brown",
 		"vscode-pets.petSize": "large",
 		"vscode-pets.position": "explorer",
-		"vscode-pets.theme": "none"
+		"vscode-pets.theme": "forest"
 	}
 }

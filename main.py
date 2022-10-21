@@ -38,10 +38,10 @@ async def startup_event():
     """
     Initialize FastAPI and add variables
     """
-
+    print(int("923fe860496a11eda8fd00c0caaaf470", 16))
     utils.modelsStorage.init()
 
-    utils.modelsStorage.models =preloadModels()
+    utils.modelsStorage.models = preloadModels()
 
     hostname=socket.gethostname()   
     IPAddr=socket.gethostbyname(hostname) 
@@ -62,17 +62,20 @@ if (environ.get('DEVELOPMENT') is False):
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
     operation = request.headers['Hash']
-    if operation == "3466fab4975481651940ed328aa990e4":
-        operation = "READ"
-    elif operation == "294ce20cdefa29be3be0735cb62e715d":
-        operation = "CREATE"
-    elif operation == "15a8022d0ed9cd9c2a2e756822703eb4":
-        operation = "UPDATE"
-    elif operation == "32f68a60cef40faedbc6af20298c1a1e":
-        operation = "DELETE"
-    else:
-        operation = "HEADERS KEY (hash) VALUE CORRUPTED"
-        await logRequest(request.client.host, request.client.port, operation, "CRITICAL")
+    if (request.method == "POST"):
+        if operation == "3466fab4975481651940ed328aa990e4":
+            operation = "READ"
+        elif operation == "294ce20cdefa29be3be0735cb62e715d":
+            operation = "CREATE"
+        elif operation == "15a8022d0ed9cd9c2a2e756822703eb4":
+            operation = "UPDATE"
+        elif operation == "32f68a60cef40faedbc6af20298c1a1e":
+            operation = "DELETE"
+        else:
+            operation = "HEADERS KEY (hash) VALUE CORRUPTED"
+            await logRequest(request.client.host, request.client.port, operation, "CRITICAL")
+    else: 
+        operation = "WEBSOCKET"
 
     await logRequest(request.client.host, request.client.port, operation)
     start_time = time.time()
@@ -90,6 +93,7 @@ schema = strawberry.Schema(
     mutation=Mutation,
     extensions=[
         AddValidationRules([NoSchemaIntrospectionCustomRule]),
+        MaskErrors,
     ])
 
 app.include_router(GraphQLRouter(schema), prefix="/api")

@@ -15,7 +15,6 @@ import os
 
 router = APIRouter()
 
-
 def preloadModels():
     yoloModel = attempt_load("weights/yolov7x.pt", "cpu")
 
@@ -25,21 +24,60 @@ def preloadModels():
     emotic_state_dict = torch.load(os.path.join("models/emotic",'model_emotic1.pt'))
     emotic_model = Emotic(2048,2048)
     emotic_model.load_state_dict(emotic_state_dict)
+
+    model_context.eval()
+    model_body.eval()
+    emotic_model.eval()
     return [yoloModel, model_context, model_body, emotic_model]
 
+html = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var ws = new WebSocket("ws://localhost:8000/ws");
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
+"""
 
-
-@router.get("/test")
-async def get():
-    return "YO"
+@router.websocket("/test")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 @router.websocket("/live")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("oi")
-    return
     while True:
         data = await websocket.receive_text()
+        print("oi2")
         print(data)
         if (data in ['Connection Opened','inside', 'Sending', 'Sended', 'Erro: MediaFrameReference', 'Erro: Exception', 'Erro: SoftwareBitmap', 'Regex']): 
             await websocket.send_text(f"Ignore")
@@ -54,7 +92,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             encodeFace = np.fromstring(base64.b64decode(b64), dtype=np.uint8) 
             
-            listDetections =  frameRecon(encodeFace, yoloModel)
+            
+            listDetections =  frameRecon(encodeFace)
 
             json_obj_list = []
             json_obj_list.append({'type' : "Person",

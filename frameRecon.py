@@ -212,6 +212,8 @@ def recognizeEmotions(npimg, personBox):
     
     device = torch.device("cuda:%s" %(str(0)) if torch.cuda.is_available() else "cpu")
     thresholds = torch.FloatTensor(np.load(os.path.join(thresholds_path, 'emotic_thresholds.npy'))).to(device) 
+    
+    '''
     model_context = torch.load(os.path.join(model_path,'model_context1.pth')).to(device)
     model_body = torch.load(os.path.join(model_path,'model_body1.pth')).to(device)
     #emotic_model = torch.load(os.path.join(model_path,'model_emotic1.pth')).to(device)
@@ -228,7 +230,10 @@ def recognizeEmotions(npimg, personBox):
     model_context.eval()
     model_body.eval()
     emotic_model.eval()
-    models = [model_context, model_body, emotic_model]
+    '''
+
+    from utils.modelsStorage import models as storedModels
+    models = [storedModels[1], storedModels[2], storedModels[3]]
 
     bbox = [int(personBox[0]), int(personBox[1]), int(personBox[2]), int(personBox[3])] # x1 y1 x2 y2
     image_context = None
@@ -293,7 +298,7 @@ def toIgnore(person, filtering):
             return True
 
 
-def frameRecon(encodeFace = "", yoloModel = None):
+def frameRecon(encodeFace = ""):
     '''
     img = cv2.imread('abel.jpg')
 
@@ -307,6 +312,9 @@ def frameRecon(encodeFace = "", yoloModel = None):
     npimg = cv2.imdecode(encodeFace, 1)
 
     npimgClean = np.copy(npimg)
+
+    from utils.modelsStorage import models as storedModels
+    yoloModel = storedModels[0]
 
     filtering, persons = detectObjects(npimg, yoloModel)
 
