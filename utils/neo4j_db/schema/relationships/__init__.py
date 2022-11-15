@@ -1,5 +1,5 @@
-from utils.neo4j_db.schema.relationships.TAKES import Pacient_TAKES_Medication
+from utils.neo4j_db.schema.relationships.UNDER import Medication_UNDER_Receipt
 
 __all__ = [
-    Pacient_TAKES_Medication
+    Medication_UNDER_Receipt
 ]

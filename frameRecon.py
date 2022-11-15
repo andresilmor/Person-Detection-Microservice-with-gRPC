@@ -22,7 +22,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 import os
-
+from PIL import Image
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
@@ -308,7 +308,7 @@ def frameRecon(encodeFace = ""):
     '''
 
     img = Image.open(BytesIO(bytearray(encodeFace)))
-    img.save(os.getcwd() + "/frame.png")
+    
     npimg = cv2.imdecode(encodeFace, 1)
 
     npimgClean = np.copy(npimg)
@@ -346,8 +346,22 @@ def frameRecon(encodeFace = ""):
             identity = str(resp.iloc[:1]['identity'])
             id = identity[identity.find("/") + 1: identity.rfind("/")] 
             
+            cv2.rectangle(npimg, ( int(person['box']['x1'] + facial_area[0]),int(person['box']['y1'] + facial_area[1])), (int(person['box']['x1'] + facial_area[2]),int(person['box']['y1'] + facial_area[3]) ), (0, 255, 0), 2)
+            
+            faceCenterX =  int(person['box']['x1'] + facial_area[0]) + ((int(person['box']['x1'] + facial_area[2]) - int(person['box']['x1'] + facial_area[0])) / 2)
+
+            faceCenterY = int(person['box']['y1'] + facial_area[1]) + ((int(person['box']['y1'] + facial_area[3]) - int(person['box']['y1'] + facial_area[1])) / 2)
+            print(faceCenterX)
+            print(faceCenterY)
+
+            
             response.append({'id': id, 'bodyCenter' : {'x' : int(personCenterX), 'y' : int(personCenterY)}, 'faceRect' : {'x1' : int(person['box']['x1'] + facial_area[0]), 'y1' : int(person['box']['y1'] + facial_area[1]), 'x2' : int(person['box']['x1'] + facial_area[2]), 'y2' : int(person['box']['y1'] +
                        facial_area[3])}, 'emotions' : recognizeEmotions(npimgClean, [person['box']['x1'], person['box']['y1'], person['box']['x2'], person['box']['y2']])})
+    
+            cv2.circle(npimg, (int(faceCenterX), int(faceCenterY)), 1, (255, 0, 0), 2)
+
+    im = Image.fromarray(npimg)
+    im.save(os.getcwd() + "/frame.png")
     return response
 
 

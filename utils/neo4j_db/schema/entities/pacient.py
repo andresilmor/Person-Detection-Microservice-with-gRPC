@@ -2,12 +2,12 @@ import strawberry.type as entity
 
 @entity
 class Pacient:
-    def __init__(self, label = None, id = None, name = None):
+    def __init__(self, label = None, uuid = None, name = None):
         self.label = label
-        self.id = id
+        self.uuid = uuid
         self.name = name
         pass
     
     label: str
-    id: str
+    uuid: str
     name: str

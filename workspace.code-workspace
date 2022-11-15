@@ -6,7 +6,7 @@
 	],
 	"settings": {
 		"vscode-pets.petColor": "brown",
-		"vscode-pets.petSize": "large",
+		"vscode-pets.petSize": "medium",
 		"vscode-pets.position": "explorer",
 		"vscode-pets.theme": "forest"
 	}

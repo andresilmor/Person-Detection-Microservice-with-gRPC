@@ -1,3 +1,4 @@
+
 def prepareQuery(parent, selected_fields, returnAs):
     queryFilter = ' UNWIND apoc.any.properties(' + parent + ',['
     childs = []

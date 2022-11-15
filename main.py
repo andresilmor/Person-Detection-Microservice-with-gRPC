@@ -1,3 +1,4 @@
+from functools import lru_cache
 import strawberry
 from strawberry.types import Info
 from fastapi import FastAPI, Request
@@ -8,17 +9,20 @@ import uvicorn
 import socket  
 import time
 
-from routers import Mutation, Query, WS_Connections
-from routers.resources.commonResponses import VisibleError, MaskErrors, ErrorMessage
+from app import Mutation, Query, WS_Connections
+from app.resources.commonResponses import VisibleError, MaskErrors, ErrorMessage
 
 from os import environ
 from dotenv import load_dotenv, find_dotenv
-from routers.resources.websockets.ws import preloadModels
+from app.resources.websockets.ws import preloadModels
+
+from app.auth.jwt_handler import decode_jwt
 from logAssist import logRequest
 
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 import utils.modelsStorage 
+
 
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
@@ -38,7 +42,7 @@ async def startup_event():
     """
     Initialize FastAPI and add variables
     """
-    print(int("923fe860496a11eda8fd00c0caaaf470", 16))
+
     utils.modelsStorage.init()
 
     utils.modelsStorage.models = preloadModels()
@@ -59,8 +63,8 @@ async def startup_event():
 if (environ.get('DEVELOPMENT') is False):
     app.add_middleware(HTTPSRedirectMiddleware)
 
-@app.middleware("http")
-async def request_middleware(request: Request, call_next):
+@lru_cache
+def validateHash(request):
     operation = request.headers['Hash']
     if (request.method == "POST"):
         if operation == "3466fab4975481651940ed328aa990e4":
@@ -73,11 +77,17 @@ async def request_middleware(request: Request, call_next):
             operation = "DELETE"
         else:
             operation = "HEADERS KEY (hash) VALUE CORRUPTED"
-            await logRequest(request.client.host, request.client.port, operation, "CRITICAL")
+            return False, operation
     else: 
         operation = "WEBSOCKET"
+    return True, operation
 
-    await logRequest(request.client.host, request.client.port, operation)
+
+@app.middleware("http")
+async def request_middleware(request: Request, call_next):
+    #result, operation = validateHash(request)
+        
+    await logRequest(request.client.host, request.client.port, request.headers['Operation'])
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -93,7 +103,7 @@ schema = strawberry.Schema(
     mutation=Mutation,
     extensions=[
         AddValidationRules([NoSchemaIntrospectionCustomRule]),
-        MaskErrors,
+        
     ])
 
 app.include_router(GraphQLRouter(schema), prefix="/api")
@@ -109,4 +119,6 @@ app.include_router(WS_Connections.router, prefix='/ws')
 
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    # workers = 2 x number_of_cores +1 (num_of_threads_per_core x number_of_cores + 1 )
+    isDev = environ.get('DEVELOPMENT') != "False"
+    uvicorn.run("main:app",host= "0.0.0.0", port=8000, log_level="info", reload=isDev, workers=4, use_colors=isDev, access_log=isDev)
