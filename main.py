@@ -88,6 +88,7 @@ async def request_middleware(request: Request, call_next):
     #result, operation = validateHash(request)
         
     await logRequest(request.client.host, request.client.port, request.headers['Operation'])
+   
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time

@@ -22,21 +22,33 @@ def signJWT(sub: str, clientHost : str):
         "sub" : sub,
         "ch" : clientHost,
         "iat" : time.time(),
-        "eat" : time.time() + 86400
+        "eat" : time.time() + 7200
     }
-    print(payload["iat"])
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     
     return token_response(token)
 
 
-def decode_jwt(token: str, clientHost: str):
+async def decode_jwt(token: str):
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=JWT_ALGORITHM)
-        if (decoded_token["ch"] == clientHost):
+        print("3")
+        print(token)
+        print(JWT_ALGORITHM)
+        print(JWT_SECRET)
+        decoded_token = await jwt.decode(jwt=token, key=JWT_SECRET, algorithms=JWT_ALGORITHM)
+        print("4")
+        print(decoded_token)
+        
+        print(token)
+        print(decoded_token["eat"])
+        print(time.time())
+        print(decoded_token["eat"] >= time.time())
+        #if (decoded_token["ch"] == clientHost):
+        if (True):
             return decoded_token if decoded_token["eat"] >= time.time() else None
         else:
-           print("Token Stoled")
-           return None 
+            return None 
     except:
+        print()
+        print("Failed the try of decode_jwt")
         return None

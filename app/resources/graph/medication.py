@@ -24,13 +24,14 @@ MedicationToTakeResponse = strawberry.union(
 @strawberry.type
 class MedicationQuery:
     
-    
     @strawberry.field
-    async def medicationToTake(self, info : Info, isAvailable:int = None, pacientID:str = None, caregiverID:str = None, institutionID:str = None) -> Union[list[CustomResponses.MedicationToTake], None]:
-        def func(info : Info, isAvailable:int = None, pacientID:str = None, caregiverID:str = None, institutionID:str = None):
-            print(info.context['request'].headers['Operation'])
+    async def medicationToTake(self, info : Info, isAvailable:int = None, pacientID:str = None, memberID:str = None, institutionID:str = None) -> Union[list[CustomResponses.MedicationToTake], None]:
+        varToPass = locals()
+        del varToPass['self']
+        print("\nBefore token")
+        async def func(info : Info, isAvailable:int = None, pacientID:str = None, memberID:str = None, institutionID:str = None):
             query = """
-            MATCH (p)<-[:RESPONSIBLE_OF]-(c:Caregiver)-[:WORKS_IN]->(i:Institution)<-[:UNDER_CARE_OF]-(p:Pacient)<-[:PRESCRIBED_FOR]-(:Receipt)<-[u:UNDER]-(m:Medication)    
+            MATCH (p)<-[:RESPONSIBLE_OF]-(c:Member)-[w:WORKS_IN]->(i:Institution)<-[:UNDER_CARE_OF]-(p:Pacient)<-[:PRESCRIBED_FOR]-(:Receipt)<-[u:UNDER]-(m:Medication)    
             WHERE True = True """
 
             parameters = {}
@@ -40,9 +41,9 @@ class MedicationQuery:
             if (pacientID != None):
                 query += """AND p.uuid = $pacientID """
                 parameters["pacientID"] = pacientID
-            if (caregiverID != None):
-                query += """AND c.uuid = $caregiverID """
-                parameters["caregiverID"] = caregiverID
+            if (memberID != None):
+                query += """AND c.uuid = $memberID """
+                parameters["memberID"] = memberID
             if (institutionID != None):
                 query += """AND i.uuid = $institutionID """
                 parameters["institutionID"] = institutionID
@@ -64,10 +65,11 @@ class MedicationQuery:
             RETURN toTake, PROPERTIES(p) AS pacient, PROPERTIES(m) AS medication ORDER BY toTake.atTime
             """
 
+            print("\nHere\n")
+
             with neo4j_driver.session() as session:
                 db_raw = session.run(query=query, parameters=parameters)  
                 db_data = db_raw.data() 
-                print(db_data)
                 session.close()
                 
             '''
@@ -77,6 +79,7 @@ class MedicationQuery:
             print (query)
             '''
 
+            print("\n" + str(db_data) +"\n")
             return [CustomResponses.MedicationToTake(**data['toTake'], pacient=(Entities.Pacient(**data['pacient']) if'pacient' in data else None ), medication=(Entities.Medication(**data['medication']) if'medication' in data else None )) for data in db_data]
-        return authorizationRequired(info, lambda: func( info, isAvailable,pacientID,caregiverID,institutionID))
+        return await authorizationRequired(info, lambda: func(**varToPass))
 

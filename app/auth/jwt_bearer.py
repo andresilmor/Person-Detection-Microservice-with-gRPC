@@ -18,19 +18,22 @@ class jwtBearer(HTTPBearer):
         else: 
             raise HTTPException(status_code = 403, detail= "Invalid or Expired Token")
 
-    def verify_jwt(self, info : Info):
+    async def verify_jwt(self, info : Info):
         isTokenValid : bool = False
-        payload = decode_jwt(info.context['request'].headers['Authorization'], info.context['request'].client.host)
+        print(info.context['request'].client.host)
+        print(info.context['request'].headers['Authorization'])
+        payload = await decode_jwt(info.context['request'].headers['Authorization'])
+        print("Payload: " + str(payload))
         if payload:
             isTokenValid = True
         return isTokenValid
         
-def authorizationRequired(info : Info, func):
-    def authorizationValidation():
-        if jwtBearer().verify_jwt(info=info):
-            print("ya")
-            return func()
-        else:
-            print("ya no")
-            return None
-    return authorizationValidation()
+async def authorizationRequired(info : Info, func):
+    print("1")
+  
+    print(jwtBearer().verify_jwt(info=info))
+    if jwtBearer().verify_jwt(info=info):
+        return await func()
+    else:
+        return None
+  
