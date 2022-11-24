@@ -22,7 +22,7 @@ class jwtBearer(HTTPBearer):
         isTokenValid : bool = False
         print(info.context['request'].client.host)
         print(info.context['request'].headers['Authorization'])
-        payload = await decode_jwt(info.context['request'].headers['Authorization'])
+        payload = await decode_jwt(info.context['request'].headers['Authorization'], info.context['request'].client.host)
         print("Payload: " + str(payload))
         if payload:
             isTokenValid = True

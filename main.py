@@ -21,8 +21,14 @@ from logAssist import logRequest
 
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
-import utils.modelsStorage 
+import utils.modelsStorage
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat, PublicFormat
+
+#private_key = Ed25519PrivateKey.generate()
+#print(private_key.private_bytes(encoding=Encoding.PEM, format=PrivateFormat.PKCS8, encryption_algorithm=NoEncryption()))
+#print(private_key.public_key().public_bytes(encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo))
 
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)

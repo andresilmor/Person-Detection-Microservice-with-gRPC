@@ -7,7 +7,8 @@ from os import environ
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
 
-JWT_SECRET = environ.get("API_SECRET_KEY")
+JWT_SECRET = b'-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIGlfZfr9xSxgimnEy28wCkcoxuZSB8pGmJMDgKust1oW\n-----END PRIVATE KEY-----\n'
+#Public b'-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAOk5Q87k5Cgy9P/ixQfckkRFGCzP/jOSC/tS/h9czXcY=\n-----END PUBLIC KEY-----\n'
 JWT_ALGORITHM = environ.get("API_ENCODE_ALGORITHM")
 
 #Returns the generated tokens
@@ -24,12 +25,15 @@ def signJWT(sub: str, clientHost : str):
         "iat" : time.time(),
         "eat" : time.time() + 7200
     }
-    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    token = jwt.encode(payload=payload, key=JWT_SECRET, algorithm=JWT_ALGORITHM)
     
+    print(token)
+
     return token_response(token)
 
 
-async def decode_jwt(token: str):
+async def decode_jwt(token: str, clientHost):
     try:
         print("3")
         print(token)
@@ -43,8 +47,8 @@ async def decode_jwt(token: str):
         print(decoded_token["eat"])
         print(time.time())
         print(decoded_token["eat"] >= time.time())
-        #if (decoded_token["ch"] == clientHost):
-        if (True):
+        if (decoded_token["ch"] == clientHost):
+        #if (True):
             return decoded_token if decoded_token["eat"] >= time.time() else None
         else:
             return None 
