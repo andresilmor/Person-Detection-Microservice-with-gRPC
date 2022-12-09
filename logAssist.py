@@ -44,9 +44,9 @@ def logWebSocketConnection(clientIP, route, clientUser = 'unknown'):
     logging.getLogger('connections_logger').info(clientIP + ' ' + clientUser + ' : START websocket connection (' + route + ')')
 
 
-async def logRequest(clientIP, port, operation, type = "info"):
+async def logRequest(clientIP, port,  type = "info"):
     if type == "info":
-        logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) + ' | ' + operation )
+        logging.getLogger('requests_logger').info(str(clientIP) + ':' + str(port) )
     else:
-        logging.getLogger('requests_logger').critical(str(clientIP) + ':' + str(port) + ' | ' + operation )
+        logging.getLogger('requests_logger').critical(str(clientIP) + ':' + str(port) )
 

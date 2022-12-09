@@ -40,7 +40,6 @@ app = FastAPI(debug=environ.get('DEVELOPMENT'),
               docs_url='/docs')
               #redoc_url='/redoc')
 
-
 #yoloModel, model_context, model_body, emotic_model = None
 
 @app.on_event("startup")
@@ -69,31 +68,10 @@ async def startup_event():
 if (environ.get('DEVELOPMENT') is False):
     app.add_middleware(HTTPSRedirectMiddleware)
 
-@lru_cache
-def validateHash(request):
-    operation = request.headers['Hash']
-    if (request.method == "POST"):
-        if operation == "3466fab4975481651940ed328aa990e4":
-            operation = "READ"
-        elif operation == "294ce20cdefa29be3be0735cb62e715d":
-            operation = "CREATE"
-        elif operation == "15a8022d0ed9cd9c2a2e756822703eb4":
-            operation = "UPDATE"
-        elif operation == "32f68a60cef40faedbc6af20298c1a1e":
-            operation = "DELETE"
-        else:
-            operation = "HEADERS KEY (hash) VALUE CORRUPTED"
-            return False, operation
-    else: 
-        operation = "WEBSOCKET"
-    return True, operation
-
-
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
-    #result, operation = validateHash(request)
         
-    await logRequest(request.client.host, request.client.port, request.headers['Operation'])
+    await logRequest(request.client.host, request.client.port)
    
     start_time = time.time()
     response = await call_next(request)

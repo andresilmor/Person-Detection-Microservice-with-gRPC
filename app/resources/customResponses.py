@@ -7,14 +7,18 @@ from typing import List, Union, Optional
 
 @type
 class MedicationToTake:
-    def __init__(self, atTime = None, quantity = None, pacient = None, medication = None):
+    def __init__(self, atTime = None, quantity = None, timeMeasure = None, intOfTime = None, pacient = None, medication = None):
         self.atTime = atTime
         self.quantity = quantity
+        self.timeMeasure = timeMeasure
+        self.intOfTime = intOfTime
         self.medication = medication
         self.pacient = pacient
         pass
     
     atTime: Optional[datetime] = None
     quantity: int
+    timeMeasure: str
+    intOfTime: int
     pacient: Pacient
     medication: Medication

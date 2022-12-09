@@ -15,7 +15,7 @@ class CaregiverQuery:
 
     @strawberry.field
     async def memberLogin(self, info : Info, username:str, password: str) -> Entities.Member:
-
+        print(username + " " + password)
         query ="""
         MATCH (c:Member) WHERE c.username = $username AND c.password = $password
             CALL {

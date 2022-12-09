@@ -28,7 +28,6 @@ class MedicationQuery:
     async def medicationToTake(self, info : Info, isAvailable:int = None, pacientID:str = None, memberID:str = None, institutionID:str = None) -> Union[list[CustomResponses.MedicationToTake], None]:
         varToPass = locals()
         del varToPass['self']
-        print("\nBefore token")
         async def func(info : Info, isAvailable:int = None, pacientID:str = None, memberID:str = None, institutionID:str = None):
             query = """
             MATCH (p)<-[:RESPONSIBLE_OF]-(c:Member)-[w:WORKS_IN]->(i:Institution)<-[:UNDER_CARE_OF]-(p:Pacient)<-[:PRESCRIBED_FOR]-(:Receipt)<-[u:UNDER]-(m:Medication)    
@@ -54,18 +53,16 @@ class MedicationQuery:
                     OPTIONAL MATCH (:Pacient)-[took:TOOK]->(m2:Medication)
                         WHERE m2.uuid = m.uuid 
                             UNWIND CASE u.timeMeasure
-                                WHEN 'min' THEN  [ { atTime: took.atTime + duration( { minutes: u.intOfTime } ), quantity: u.quantityPer } ]  
-                                WHEN 'h' THEN  [ { atTime: took.atTime  + duration( { hours: u.intOfTime } ), quantity: u.quantityPer } ]  
-                                WHEN 'd' THEN  [ { atTime: took.atTime + duration( { days: u.intOfTime } ), quantity: u.quantityPer } ]  
-                                WHEN 'm' THEN  [ { atTime: took.atTime + duration( { months: u.intOfTime } ), quantity: u.quantityPer } ]  
-                                WHEN 'y' THEN  [ { atTime: took.atTime + duration( { years: u.intOfTime } ), quantity: u.quantityPer } ]  
+                                WHEN 'min' THEN  [ { atTime: took.atTime + duration( { minutes: u.intOfTime } ), quantity: u.quantityPer, timeMeasure: u.timeMeasure, intOfTime: u.intOfTime } ]  
+                                WHEN 'h' THEN  [ { atTime: took.atTime  + duration( { hours: u.intOfTime } ), quantity: u.quantityPer, timeMeasure: u.timeMeasure, intOfTime: u.intOfTime } ]  
+                                WHEN 'd' THEN  [ { atTime: took.atTime + duration( { days: u.intOfTime } ), quantity: u.quantityPer, timeMeasure: u.timeMeasure, intOfTime: u.intOfTime } ]  
+                                WHEN 'm' THEN  [ { atTime: took.atTime + duration( { months: u.intOfTime } ), quantity: u.quantityPer, timeMeasure: u.timeMeasure, intOfTime: u.intOfTime } ]  
+                                WHEN 'y' THEN  [ { atTime: took.atTime + duration( { years: u.intOfTime } ), quantity: u.quantityPer, timeMeasure: u.timeMeasure, intOfTime: u.intOfTime } ]  
                             END AS toTake    
                     RETURN PROPERTIES(toTake) as toTake ORDER BY toTake.atTime DESC LIMIT 1
                 }
             RETURN toTake, PROPERTIES(p) AS pacient, PROPERTIES(m) AS medication ORDER BY toTake.atTime
             """
-
-            print("\nHere\n")
 
             with neo4j_driver.session() as session:
                 db_raw = session.run(query=query, parameters=parameters)  
