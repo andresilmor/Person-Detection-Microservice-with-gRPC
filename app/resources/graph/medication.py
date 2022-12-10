@@ -1,5 +1,5 @@
 import imp
-from msilib.schema import Error
+
 from unicodedata import name
 from unittest import result
 from urllib import response
