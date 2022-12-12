@@ -11,8 +11,11 @@ import time
 
 from app import Mutation, Query, WS_Connections
 from app.resources.commonResponses import VisibleError, MaskErrors, ErrorMessage
+from fastapi.logger import logger
+from pydantic import BaseSettings
 
-from os import environ
+import os
+import sys
 from dotenv import load_dotenv, find_dotenv
 from app.resources.websockets.ws import preloadModels
 
@@ -33,12 +36,55 @@ from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption,
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
 
-app = FastAPI(debug=environ.get('DEVELOPMENT'),
-              title=environ.get('APP_NAME'),
+# ---------------------------------------------------------------------------------------------------------------- #
+
+# --------------------------------------------      NGROK     ---------------------------------------------------- #   
+'''
+class Settings(BaseSettings):
+    # ... The rest of our FastAPI settings
+
+    BASE_URL = "http://localhost:8000"
+    USE_NGROK = os.environ.get('USE_NGROK')
+
+
+settings = Settings()
+
+
+def init_webhooks(base_url):
+    # Update inbound traffic via APIs to use the public-facing ngrok URL
+    pass
+'''    
+
+app = FastAPI(debug=os.environ.get('DEVELOPMENT'),
+              title=os.environ.get('APP_NAME'),
               description='...',
               version=0.1,
               docs_url='/docs')
               #redoc_url='/redoc')
+
+'''
+print("=> "+ settings.USE_NGROK)
+if settings.USE_NGROK:
+    # pyngrok should only ever be installed or initialized in a dev environment when this flag is set
+    from pyngrok import ngrok
+
+    # Get the dev server port (defaults to 8000 for Uvicorn, can be overridden with `--port`
+    # when starting the server
+    port = sys.argv[sys.argv.index("--port") + 1] if "--port" in sys.argv else 8000
+
+    # Open a ngrok tunnel to the dev server
+    public_url = ngrok.connect(port).public_url
+    logger.info("ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}\"".format(public_url, port))
+
+    # Update any base URLs or webhooks to use the public ngrok URL
+    settings.BASE_URL = public_url
+    init_webhooks(public_url)
+
+'''
+# ---------------------------------------------------------------------------------------------------------------- #
+
+# --------------------------------------------    Startup     ---------------------------------------------------- #   
+
 
 #yoloModel, model_context, model_body, emotic_model = None
 
@@ -65,7 +111,7 @@ async def startup_event():
 
 # --------------------------------------------   Middleware   ---------------------------------------------------- #   
  
-if (environ.get('DEVELOPMENT') is False):
+if (os.environ.get('DEVELOPMENT') is False):
     app.add_middleware(HTTPSRedirectMiddleware)
 
 @app.middleware("http")
@@ -105,5 +151,5 @@ app.include_router(WS_Connections.router, prefix='/ws')
 
 if __name__ == "__main__":
     # workers = 2 x number_of_cores +1 (num_of_threads_per_core x number_of_cores + 1 )
-    isDev = environ.get('DEVELOPMENT') != "False"
+    isDev = os.environ.get('DEVELOPMENT') != "False"
     uvicorn.run("main:app",host= "0.0.0.0", port=8000, log_level="info", reload=isDev, workers=4, use_colors=isDev, access_log=isDev)
