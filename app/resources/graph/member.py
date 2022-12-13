@@ -33,5 +33,5 @@ class CaregiverQuery:
         #if isinstance(db_data['Institution'], tuple): 
         #    return Entities.Member(**db_data['Member'], institution=([Entities.Institution(**data) for data in db_data['Institution']]))
       
-        return Entities.Member(**db_data[0]['Member'], token=signJWT(db_data[0]['Member']['uuid'], info.context['request'].client.host)['access_token'], memberOf=([Entities.MemberOf(role=data['Institution']['role'], institution= Entities.Institution(**data['Institution']['institution'])) for data in db_data]))
+        return Entities.Member(**db_data[0]['Member'], token=signJWT(db_data[0]['Member']['uuid'])['access_token'], memberOf=([Entities.MemberOf(role=data['Institution']['role'], institution= Entities.Institution(**data['Institution']['institution'])) for data in db_data]))
         

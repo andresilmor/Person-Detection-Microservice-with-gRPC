@@ -116,9 +116,7 @@ if (os.environ.get('DEVELOPMENT') is False):
 
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
-        
     await logRequest(request.client.host, request.client.port)
-   
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
@@ -146,6 +144,12 @@ app.include_router(GraphQLRouter(schema), prefix="/api")
 app.include_router(WS_Connections.router, prefix='/ws')
 
 # ---------------------------------------------------------------------------------------------------------------- #   
+
+from app.auth.jwt_handler import decode_jwt
+
+@app.get("/validate")
+async def validate_token(request:Request):
+    return {"isValid" : await decode_jwt(request.headers["Authorization"])}
 
 
 

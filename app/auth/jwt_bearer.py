@@ -20,15 +20,14 @@ class jwtBearer(HTTPBearer):
 
     async def verify_jwt(self, info : Info):
         isTokenValid : bool = False
-        payload = await decode_jwt(info.context['request'].headers['Authorization'], info.context['request'].client.host)
+        payload = await decode_jwt(info.context['request'].headers['Authorization'])
         
         if payload:
             isTokenValid = True
         return isTokenValid
         
 async def authorizationRequired(info : Info, func):
-  
-    if jwtBearer().verify_jwt(info=info):
+    if await jwtBearer().verify_jwt(info=info):
         return await func()
     else:
         return None

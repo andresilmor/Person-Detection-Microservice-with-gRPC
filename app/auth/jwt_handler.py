@@ -18,10 +18,9 @@ def token_response(token: str):
     }
 
 #Function used for signing the JWT string
-def signJWT(sub: str, clientHost : str):
+def signJWT(sub: str):
     payload = {
         "sub" : sub,
-        "ch" : clientHost,
         "iat" : time.time(),
         "eat" : time.time() + 7200
     }
@@ -31,13 +30,12 @@ def signJWT(sub: str, clientHost : str):
     return token_response(token)
 
 
-async def decode_jwt(token: str, clientHost):
+async def decode_jwt(token: str):
     try:
-        decoded_token = await jwt.decode(jwt=token, key=JWT_SECRET, algorithms=JWT_ALGORITHM)
-        if (decoded_token["ch"] == clientHost):
-            return decoded_token if decoded_token["eat"] >= time.time() else None
-        else:
-            return None 
+        print(token)
+        decoded_token =  jwt.decode(jwt=token, key=JWT_SECRET, algorithms=JWT_ALGORITHM)
+        return decoded_token if decoded_token["eat"] >= time.time() else None
+    
     except:
         print("Failed the try of decode_jwt")
         return None
