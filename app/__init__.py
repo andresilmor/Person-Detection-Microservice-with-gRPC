@@ -1,6 +1,6 @@
 from app.mutation import Mutation
 from app.query import Query
-from app.resources import WS_Connections
+from app.websockets import WS_Connections
 
 
 __all__ = [
