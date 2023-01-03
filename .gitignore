@@ -1,4 +1,5 @@
-
+.venv
+.venv/
 Server.rar
 Server_ENV
 Brain/database/*

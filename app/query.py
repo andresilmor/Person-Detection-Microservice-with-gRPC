@@ -1,10 +1,9 @@
-from abc import abstractmethod
 import strawberry
-from app.resources.graph import PacientQuery, MedicationQuery, CaregiverQuery
+from app.services import PacientQuery, MedicationQuery, MemberQuery
 
 
 @strawberry.type
-class Query (PacientQuery, MedicationQuery, CaregiverQuery):
+class Query (PacientQuery, MedicationQuery, MemberQuery):
 
     def NOT_USED(self):
         return None

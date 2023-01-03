@@ -1,33 +1,23 @@
-from functools import lru_cache
 import strawberry
-from strawberry.types import Info
-from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
 from strawberry.extensions import AddValidationRules
+from fastapi import FastAPI, Request
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from graphql.validation import NoSchemaIntrospectionCustomRule
 import uvicorn
 import socket  
 import time
 
 from app import Mutation, Query, WS_Connections
-from app.resources.commonResponses import VisibleError, MaskErrors, ErrorMessage
-from fastapi.logger import logger
-from pydantic import BaseSettings
 
 import os
-import sys
 from dotenv import load_dotenv, find_dotenv
-from app.resources.websockets.ws import preloadModels
+from app.websockets.ws import preloadModels
 
 from app.auth.jwt_handler import decode_jwt
 from logAssist import logRequest
 
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-
 import utils.modelsStorage
-
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat, PublicFormat
 
 #private_key = Ed25519PrivateKey.generate()
 #print(private_key.private_bytes(encoding=Encoding.PEM, format=PrivateFormat.PKCS8, encryption_algorithm=NoEncryption()))
@@ -116,11 +106,11 @@ if (os.environ.get('DEVELOPMENT') is False):
 
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
-    await logRequest(request.client.host, request.client.port)
-    start_time = time.time()
+    #await logRequest(request.client.host, request.client.port)
+    #start_time = time.time()
     response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
+    #process_time = time.time() - start_time
+    #response.headers["X-Process-Time"] = str(process_time)
     return response
 
 # ---------------------------------------------------------------------------------------------------------------- #
