@@ -107,10 +107,10 @@ if (os.environ.get('DEVELOPMENT') is False):
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
     #await logRequest(request.client.host, request.client.port)
-    #start_time = time.time()
+    start_time = time.time()
     response = await call_next(request)
-    #process_time = time.time() - start_time
-    #response.headers["X-Process-Time"] = str(process_time)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
     return response
 
 # ---------------------------------------------------------------------------------------------------------------- #
