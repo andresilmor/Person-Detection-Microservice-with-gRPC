@@ -1,8 +1,15 @@
 syntax = "proto3";
 
+package personDetection;
+
 //This tells gRPC we have an InferenceServer service with an inference function, notice that we need to specify the type of the messages: InferenceRequest and InferenceReply
 
 // "repeated" means list of
+
+service PersonDetectionService {
+    rpc Inference (PersonDetectionRequest) returns (PersonDetectionInferenceReply) { }
+}
+
 
 //Request message containing image
 message PersonDetectionRequest {
@@ -22,7 +29,4 @@ message DetectionBox {
 
 }
 
-service PersonDetectionServer {
-    rpc inference (PersonDetectionRequest) returns (PersonDetectionInferenceReply) { }
-}
 

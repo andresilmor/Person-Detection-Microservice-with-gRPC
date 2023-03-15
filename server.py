@@ -11,10 +11,13 @@ from numpy import random
 import base64
 import os
 
-from ms_personDetection_pb2_grpc import PersonDetectionServer, add_PersonDetectionServerServicer_to_server
+from ms_personDetection_pb2_grpc import PersonDetectionService, add_PersonDetectionServiceServicer_to_server
 from ms_personDetection_pb2 import PersonDetectionRequest, PersonDetectionInferenceReply, DetectionBox
 
 import logging
+from time import perf_counter
+
+
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 import torch
 from utils.plots import plot_one_box
@@ -24,12 +27,14 @@ from models.experimental import attempt_load
 
 logging.basicConfig(level=logging.INFO)
 
-class PersonDetectionService(PersonDetectionServer):
+class PersonDetectionService(PersonDetectionService):
+
+    def __init__(self) -> None:
+        self.model = attempt_load("weights/yolov7x.pt", map_location= 'cpu') 
+        super().__init__()
+
     async def letterbox(self, img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
         # Resize and pad image while meeting stride-multiple constraints
-        print(type(img))
-        print(img is None)
-        cv2.imwrite(os.getcwd() + "/filename.png", img)
         shape = img.shape[:2]  # current shape [height, width]
         
         if isinstance(new_shape, int):
@@ -65,13 +70,20 @@ class PersonDetectionService(PersonDetectionServer):
         return img, ratio, (dw, dh)
 
 
-    async def inference(self, request: PersonDetectionRequest, context) -> PersonDetectionInferenceReply:
+    async def Inference(self, request: PersonDetectionRequest, context) -> PersonDetectionInferenceReply:
+        start = perf_counter()
+
         npimg = cv2.imdecode(np.frombuffer(request.image, np.uint8), -1)
+
+        cv2.rectangle(npimg, ( 0, 0 ), (200, 856) , (0, 0, 0), -1) # |o
+        cv2.rectangle(npimg, ( 1300, 0 ), (1504, 856) , (0, 0, 0), -1) # o|
+        cv2.rectangle(npimg, ( 200, 720 ), (1300, 856) , (0, 0, 0), -1) # _
+
+        #cv2.imwrite(os.getcwd() + "/frame4.png",npimg)
         
         classes_to_filter = ["bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork",
                          "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch", "potted plant", "bed", "dining table", "toilet", "mouse", "remote", "keyboard", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"]  # You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
-        print("Cuda Available: " + str(torch.cuda.is_available()))
         opt = {
 
             # Path to weights file default weights are for nano model
@@ -90,7 +102,7 @@ class PersonDetectionService(PersonDetectionServer):
           
             device = select_device(opt['device'])
             half = device.type != 'cpu'
-            model = attempt_load(weights, map_location=device)  # load FP32 model
+            model = self.model  # load FP32 model
             
             stride = int(model.stride.max())  # model stride
             imgsz = check_img_size(imgsz, s=stride)  # check img_size
@@ -175,10 +187,9 @@ class PersonDetectionService(PersonDetectionServer):
                             #persons["persons"].append({"box": {"x1": int(np.array(xyxy)[0]), "y1": int(np.array(xyxy)[
                              #                       1]), "x2": int(np.array(xyxy)[2]), "y2": int(np.array(xyxy)[3])}})
 
-
-        print(filter)
-
-
+        logging.info(
+            f"[✅] In {(perf_counter() - start) * 1000:.2f}ms"
+        )
 
 
         return PersonDetectionInferenceReply(persons=persons, filter=filter)
@@ -187,7 +198,7 @@ class PersonDetectionService(PersonDetectionServer):
 
 async def serve():
     server = grpc.aio.server()
-    add_PersonDetectionServerServicer_to_server(PersonDetectionService(), server)
+    add_PersonDetectionServiceServicer_to_server(PersonDetectionService(), server)
     # using ip v6
     adddress = "[::]:50053"
     server.add_insecure_port(adddress)

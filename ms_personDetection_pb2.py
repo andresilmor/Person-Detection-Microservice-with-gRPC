@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18ms_personDetection.proto\"\'\n\x16PersonDetectionRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\"^\n\x1dPersonDetectionInferenceReply\x12\x1e\n\x07persons\x18\x01 \x03(\x0b\x32\r.DetectionBox\x12\x1d\n\x06\x66ilter\x18\x02 \x03(\x0b\x32\r.DetectionBox\"e\n\x0c\x44\x65tectionBox\x12\'\n\x05point\x18\x01 \x03(\x0b\x32\x18.DetectionBox.PointEntry\x1a,\n\nPointEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x32_\n\x15PersonDetectionServer\x12\x46\n\tinference\x12\x17.PersonDetectionRequest\x1a\x1e.PersonDetectionInferenceReply\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18ms_personDetection.proto\x12\x0fpersonDetection\"\'\n\x16PersonDetectionRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\"~\n\x1dPersonDetectionInferenceReply\x12.\n\x07persons\x18\x01 \x03(\x0b\x32\x1d.personDetection.DetectionBox\x12-\n\x06\x66ilter\x18\x02 \x03(\x0b\x32\x1d.personDetection.DetectionBox\"u\n\x0c\x44\x65tectionBox\x12\x37\n\x05point\x18\x01 \x03(\x0b\x32(.personDetection.DetectionBox.PointEntry\x1a,\n\nPointEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x32\x80\x01\n\x16PersonDetectionService\x12\x66\n\tInference\x12\'.personDetection.PersonDetectionRequest\x1a..personDetection.PersonDetectionInferenceReply\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ms_personDetection_pb2', globals())
@@ -22,14 +22,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _DETECTIONBOX_POINTENTRY._options = None
   _DETECTIONBOX_POINTENTRY._serialized_options = b'8\001'
-  _PERSONDETECTIONREQUEST._serialized_start=28
-  _PERSONDETECTIONREQUEST._serialized_end=67
-  _PERSONDETECTIONINFERENCEREPLY._serialized_start=69
-  _PERSONDETECTIONINFERENCEREPLY._serialized_end=163
-  _DETECTIONBOX._serialized_start=165
-  _DETECTIONBOX._serialized_end=266
-  _DETECTIONBOX_POINTENTRY._serialized_start=222
-  _DETECTIONBOX_POINTENTRY._serialized_end=266
-  _PERSONDETECTIONSERVER._serialized_start=268
-  _PERSONDETECTIONSERVER._serialized_end=363
+  _PERSONDETECTIONREQUEST._serialized_start=45
+  _PERSONDETECTIONREQUEST._serialized_end=84
+  _PERSONDETECTIONINFERENCEREPLY._serialized_start=86
+  _PERSONDETECTIONINFERENCEREPLY._serialized_end=212
+  _DETECTIONBOX._serialized_start=214
+  _DETECTIONBOX._serialized_end=331
+  _DETECTIONBOX_POINTENTRY._serialized_start=287
+  _DETECTIONBOX_POINTENTRY._serialized_end=331
+  _PERSONDETECTIONSERVICE._serialized_start=334
+  _PERSONDETECTIONSERVICE._serialized_end=462
 # @@protoc_insertion_point(module_scope)

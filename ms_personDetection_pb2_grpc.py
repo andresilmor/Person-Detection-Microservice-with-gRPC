@@ -5,8 +5,12 @@ import grpc
 import ms_personDetection_pb2 as ms__personDetection__pb2
 
 
-class PersonDetectionServerStub(object):
-    """Missing associated documentation comment in .proto file."""
+class PersonDetectionServiceStub(object):
+    """This tells gRPC we have an InferenceServer service with an inference function, notice that we need to specify the type of the messages: InferenceRequest and InferenceReply
+
+    "repeated" means list of
+
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -14,42 +18,50 @@ class PersonDetectionServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.inference = channel.unary_unary(
-                '/PersonDetectionServer/inference',
+        self.Inference = channel.unary_unary(
+                '/personDetection.PersonDetectionService/Inference',
                 request_serializer=ms__personDetection__pb2.PersonDetectionRequest.SerializeToString,
                 response_deserializer=ms__personDetection__pb2.PersonDetectionInferenceReply.FromString,
                 )
 
 
-class PersonDetectionServerServicer(object):
-    """Missing associated documentation comment in .proto file."""
+class PersonDetectionServiceServicer(object):
+    """This tells gRPC we have an InferenceServer service with an inference function, notice that we need to specify the type of the messages: InferenceRequest and InferenceReply
 
-    def inference(self, request, context):
+    "repeated" means list of
+
+    """
+
+    def Inference(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_PersonDetectionServerServicer_to_server(servicer, server):
+def add_PersonDetectionServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'inference': grpc.unary_unary_rpc_method_handler(
-                    servicer.inference,
+            'Inference': grpc.unary_unary_rpc_method_handler(
+                    servicer.Inference,
                     request_deserializer=ms__personDetection__pb2.PersonDetectionRequest.FromString,
                     response_serializer=ms__personDetection__pb2.PersonDetectionInferenceReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'PersonDetectionServer', rpc_method_handlers)
+            'personDetection.PersonDetectionService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class PersonDetectionServer(object):
-    """Missing associated documentation comment in .proto file."""
+class PersonDetectionService(object):
+    """This tells gRPC we have an InferenceServer service with an inference function, notice that we need to specify the type of the messages: InferenceRequest and InferenceReply
+
+    "repeated" means list of
+
+    """
 
     @staticmethod
-    def inference(request,
+    def Inference(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,7 +71,7 @@ class PersonDetectionServer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/PersonDetectionServer/inference',
+        return grpc.experimental.unary_unary(request, target, '/personDetection.PersonDetectionService/Inference',
             ms__personDetection__pb2.PersonDetectionRequest.SerializeToString,
             ms__personDetection__pb2.PersonDetectionInferenceReply.FromString,
             options, channel_credentials,
