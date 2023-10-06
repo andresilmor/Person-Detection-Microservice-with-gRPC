@@ -200,7 +200,7 @@ async def serve():
     server = grpc.aio.server()
     add_PersonDetectionServiceServicer_to_server(PersonDetectionService(), server)
     # using ip v6
-    adddress = "[::]:50053"
+    adddress = "[::]:50070"
     server.add_insecure_port(adddress)
     logging.info(f"[📡] Starting server on {adddress}")
     await server.start()
